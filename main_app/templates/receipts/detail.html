@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Receipt Details</h1>
+
+<div class="card">
+  <div class="card-content">
+    <span class="card-title">{{ receipt.title }}</span>
+    <p>Date: {{ receipt.date }}</p>
+    <p>Total: {{ receipt.total|linebreaks }}</p>
+  </div>
+</div>
+
+{% endblock %}
