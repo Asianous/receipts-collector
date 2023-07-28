@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from django.views.generic import CreateView, UpdateView, DeleteView
 from .models import Receipt
+from datetime import date
 
 
 # Create your views here.
@@ -20,3 +22,15 @@ def receipts_detail(request, receipt_id):
   return render(request, 'receipts/detail.html', {
     'receipt': receipt
   })
+
+class ReceiptCreate(CreateView):
+  model = Receipt
+  fields = '__all__'
+
+class ReceiptUpdate(UpdateView):
+  model = Receipt
+  fields = ['restaurant', 'date', 'total']
+
+class ReceiptDelete(DeleteView):
+  model = Receipt
+  success_url = '/receipts'
