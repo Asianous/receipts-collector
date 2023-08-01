@@ -2,18 +2,100 @@
 {% block content %}
 
 <h1>Receipt Details</h1>
-
-<div class="card">
-  <div class="card-content">
-    <span class="card-title">{{ receipt.name }}</span>
-    <p>Restaurant: {{ receipt.restaurant|linebreaks }}</p>
-    <p>Date: {{ receipt.date|linebreaks }}</p>
-    <p>Total: {{ receipt.total|linebreaks }}</p>
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ receipt.name }}</span>
+        <p>Restaurant: {{ receipt.restaurant|linebreaks }}</p>
+        <p>Date: {{ receipt.datepick|linebreaks }}</p>
+        <p>Total: {{ receipt.total|linebreaks }}</p>
+      </div>
+      <div class="card-action">
+        <a href="{% url 'receipt_update' receipt.id %}">Edit</a>
+        <a href="{% url 'receipt_delete' receipt.id %}">Delete</a>
+      </div>
+    </div>
   </div>
-  <div class="card-action">
-    <a href="{% url 'receipt_update' receipt.id %}">Edit</a>
-    <a href="{% url 'receipt_delete' receipt.id %}">Delete</a>
+  <div class="col s6">
+    <form action="{% url 'add_expense' receipt.id %}" method="POST">
+    {% csrf_token %}
+    <!-- Render the inputs -->
+    {{ expense_form.as_p }}
+    <input type="submit" class="btn" value="Update">
+  </form>
+    <table class="striped">
+      <thead>
+        <tr><th>Date</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for expense in receipt.expense_set.all %}
+        <tr>
+          <td>{{expense.date}}</td>
+          <td>{{expense.get_paid_display}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
+<hr>
+<div class="row">
+  <div class="col s6">
+    <h3>Who Owes for {{ receipt.name }}</h3>
+    {% if receipt.people.count %}
+      {% for person in receipt.people.all %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">
+          </div>
+          <div class="card-action">
+            <form action="{% url 'unassoc_people' receipt.id people.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="btn">Remove</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <h5>No People</h5>
+    {% endif %}
+  </div>
+  <!-- Available People will come after this line -->
+  <div class="col s6">
+    <h3>Available People</h3>
+    {% if people.count %}
+      {% for person in people.all %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{{ person.name }}</span>
+          </div>
+          <div class="card-action">
+            <form action="{% url 'assoc_people' receipt.id people.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="btn">Add</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <h5>{{receipt.name}} Already Has All People Available</h5>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  const dateEl = document.getElementById('id_date');
+M.Datepicker.init(dateEl, {
+  format: 'yyyy-mm-dd',
+  defaultDate: new Date(),
+  setDefaultDate: true,
+  autoClose: true
+});
+
+  const selectEl = document.getElementById('id_paid');
+  M.FormSelect.init(selectEl);
+
+</script>
 {% endblock %}

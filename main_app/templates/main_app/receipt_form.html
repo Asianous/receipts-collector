@@ -18,8 +18,9 @@
     {{ form.as_table }}
   </table>
   <input type="submit" value="Submit!" class="btn">
+  
   <script>
-  const dateEl = document.getElementById('id_date');
+  const dateEl = document.getElementById('id_datepick');
   M.Datepicker.init(dateEl, {
     format: 'yyyy-mm-dd',
     defaultDate: new Date(),
