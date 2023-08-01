@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
 from .models import Receipt, People
-from datetime import date
 from .forms import ExpenseForm
 
 
@@ -21,9 +20,12 @@ def receipts_index(request):
 
 def receipts_detail(request, receipt_id):
   receipt = Receipt.objects.get(id=receipt_id)
+  id_list = receipt.people.all().values_list('id')
+  people_receipt_doesnt_have = People.objects.exclude(id__in=id_list)
   expense_form = ExpenseForm
   return render(request, 'receipts/detail.html', {
-    'receipt': receipt, 'expense_form': expense_form
+    'receipt': receipt, 'expense_form': expense_form, 
+    'people': people_receipt_doesnt_have
   })
 
 class ReceiptCreate(CreateView):
@@ -69,5 +71,5 @@ def assoc_people(request, receipt_id, people_id):
   return redirect('detail', receipt_id=receipt_id)
 
 def unassoc_people(request, receipt_id, people_id):
-  Receipt.objects.get(id=receipt_id).people.remove(receipt_id)
+  Receipt.objects.get(id=receipt_id).people.remove(people_id)
   return redirect('detail', receipt_id=receipt_id)
